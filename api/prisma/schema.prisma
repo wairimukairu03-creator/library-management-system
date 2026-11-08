@@ -1,0 +1,58 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+   url      = env("DATABASE_URL")
+}
+
+// Core Requirement: Role Enum
+enum Role {
+  PATRON
+  LIBRARIAN
+}
+
+// Core Requirement: User Model
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(PATRON)
+  reviews   Review[] // Link to Stretch Task Relation
+  createdAt DateTime @default(now())
+  updatedAt @updatedAt
+}
+
+// Core Requirement: Genre Model
+model Genre {
+  id    String @id @default(uuid())
+  name  String @unique
+  books Book[]
+}
+
+// Core Requirement: Book Model with Foreign Key relation
+model Book {
+  id          String    @id @default(uuid())
+  title       String
+  author      String
+  publishedAt DateTime?
+  genreId     String
+  genre       Genre     @relation(fields: [genreId], references: [id])
+  reviews     Review[]  // Link to Stretch Task Relation
+  createdAt   DateTime  @default(now())
+  updatedAt   @updatedAt
+}
+
+// Stretch Task: Review Model
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
